@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apyton-app
+  template:
+    metadata:
+      labels:
+        app: apyton-app
+    spec:
+      containers:
+      - name: apyton-container
+        image: TU_USUARIO/TU_REPOSITORIO:latest
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+spec:
+  selector:
+    app: apyton-app
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
