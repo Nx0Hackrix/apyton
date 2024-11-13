@@ -6,17 +6,18 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: apyton-app
+      app: fastapi-app
   template:
     metadata:
       labels:
-        app: apyton-app
+        app: fastapi-app
     spec:
       containers:
-      - name: apyton-container
-        image: TU_USUARIO/TU_REPOSITORIO:latest
+      - name: fastapi-container
+        image: nx0x/apyton:latest  # Aquí usaremos la imagen que subiste a Docker Hub
         ports:
         - containerPort: 8000
+
 ---
 apiVersion: v1
 kind: Service
@@ -24,9 +25,9 @@ metadata:
   name: api-service
 spec:
   selector:
-    app: apyton-app
+    app: fastapi-app
   ports:
-    - protocol: "TCP"
+    - protocol: TCP
       port: 80
       targetPort: 8000
   type: LoadBalancer
