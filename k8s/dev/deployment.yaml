@@ -1,33 +1,58 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-deployment
+  name: apyton-deployment
+  labels:
+    app: apyton
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: fastapi-app
+      app: apyton
   template:
     metadata:
       labels:
-        app: fastapi-app
+        app: apyton
+      annotations:
+        sidecar.istio.io/inject: 'true'
     spec:
       containers:
-      - name: fastapi-container
-        image: nx0x/apyton:latest  # Aquí usaremos la imagen que subiste a Docker Hub
-        ports:
-        - containerPort: 8000
-
+        - name: apyton
+          image: nx0x/apyton:latest  # Imagen de la APU en DockerHub
+          ports:
+            - containerPort: 80  # Puerto en el que la API escucha
+          resources:
+            requests:
+              memory: "20Mi"
+              cpu: "100m"
+            limits:
+              memory: "80Mi"
+              cpu: "120m"
+      nodeSelector:
+        kubernetes.io/hostname: votan.interopera.jep.gov.co  # Nodo específico
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-service
+  name: apyton-services
 spec:
   selector:
-    app: fastapi-app
+    app: apyton
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8000
-  type: LoadBalancer
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: apyton-virtualservice
+spec:
+  hosts:
+    - "apyton"  # Nombre del servicio al que se dirige el tráfico
+  http:
+    - route:
+        - destination:
+            host: apyton
+            port:
+              number: 80
